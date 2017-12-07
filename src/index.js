@@ -1,110 +1,123 @@
-import React, { Component } from 'react';
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  StyleSheet
-} from 'react-native';
-import moment from 'moment';
-import 'moment-range';
+import React, { Component } from "react";
+import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+
+const moment = extendMoment(Moment);
 
 type DatesType = {
   range: boolean,
   date: ?moment,
   startDate: ?moment,
   endDate: ?moment,
-  focusedInput: 'startDate' | 'endDate',
-  onDatesChange: (date: { date?: ?moment, startDate?: ?moment, endDate?: ?moment }) => void,
+  focusedInput: "startDate" | "endDate",
+  onDatesChange: (date: {
+    date?: ?moment,
+    startDate?: ?moment,
+    endDate?: ?moment
+  }) => void,
   isDateBlocked: (date: moment) => boolean,
   onDisableClicked: (date: moment) => void
-}
+};
 
 type MonthType = {
   range: boolean,
   date: ?moment,
   startDate: ?moment,
   endDate: ?moment,
-  focusedInput: 'startDate' | 'endDate',
+  focusedInput: "startDate" | "endDate",
   currentDate: moment,
   focusedMonth: moment,
-  onDatesChange: (date: { date?: ?moment, startDate?: ?moment, endDate?: ?moment }) => void,
+  onDatesChange: (date: {
+    date?: ?moment,
+    startDate?: ?moment,
+    endDate?: ?moment
+  }) => void,
   isDateBlocked: (date: moment) => boolean,
   onDisableClicked: (date: moment) => void
-}
+};
 
 type WeekType = {
   range: boolean,
   date: ?moment,
   startDate: ?moment,
   endDate: ?moment,
-  focusedInput: 'startDate' | 'endDate',
+  focusedInput: "startDate" | "endDate",
   startOfWeek: moment,
-  onDatesChange: (date: { date?: ?moment, startDate?: ?moment, endDate?: ?moment }) => void,
+  onDatesChange: (date: {
+    date?: ?moment,
+    startDate?: ?moment,
+    endDate?: ?moment
+  }) => void,
   isDateBlocked: (date: moment) => boolean,
   onDisableClicked: (date: moment) => void
-}
+};
 
-const styles = StyleSheet.create({
+const defaultStyles = StyleSheet.create({
   calendar: {
-    backgroundColor: 'rgb(255, 255, 255)'
+    backgroundColor: "rgb(255, 255, 255)"
   },
   heading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 20
   },
   week: {
-    flexDirection: 'row'
+    flexDirection: "row"
   },
   dayName: {
     flexGrow: 1,
     flexBasis: 1,
-    textAlign: 'center',
+    textAlign: "center"
   },
   day: {
     flexGrow: 1,
     flexBasis: 1,
-    alignItems: 'center',
-    backgroundColor: 'rgb(245, 245, 245)',
+    alignItems: "center",
+    backgroundColor: "rgb(245, 245, 245)",
     margin: 1,
     padding: 10
   },
   dayBlocked: {
-    backgroundColor: 'rgb(255, 255, 255)'
+    backgroundColor: "rgb(255, 255, 255)"
   },
   daySelected: {
-    backgroundColor: 'rgb(52,120,246)'
+    backgroundColor: "rgb(52,120,246)"
   },
   dayText: {
-    color: 'rgb(0, 0, 0)',
-    fontWeight: '600'
+    color: "rgb(0, 0, 0)",
+    fontWeight: "600"
   },
   dayDisabledText: {
-    color: 'gray',
+    color: "gray",
     opacity: 0.5,
-    fontWeight: '400'
+    fontWeight: "400"
   },
   daySelectedText: {
-    color: 'rgb(252, 252, 252)'
+    color: "rgb(252, 252, 252)"
   }
 });
 
-const dates = (startDate: ?moment, endDate: ?moment, focusedInput: 'startDate' | 'endDate') => {
-  if (focusedInput === 'startDate') {
+const dates = (
+  startDate: ?moment,
+  endDate: ?moment,
+  focusedInput: "startDate" | "endDate"
+) => {
+  if (focusedInput === "startDate") {
     if (startDate && endDate) {
-      return ({ startDate, endDate: null, focusedInput: 'endDate' });
+      return { startDate, endDate: null, focusedInput: "endDate" };
     }
-    return ({ startDate, endDate, focusedInput: 'endDate' });
+    return { startDate, endDate, focusedInput: "endDate" };
   }
 
-  if (focusedInput === 'endDate') {
+  if (focusedInput === "endDate") {
     if (endDate && startDate && endDate.isBefore(startDate)) {
-      return ({ startDate: endDate, endDate: null, focusedInput: 'endDate' });
+      return { startDate: endDate, endDate: null, focusedInput: "endDate" };
     }
-    return ({ startDate, endDate, focusedInput: 'startDate' });
+    return { startDate, endDate, focusedInput: "startDate" };
   }
 
-  return ({ startDate, endDate, focusedInput });
+  return { startDate, endDate, focusedInput };
 };
 
 export const Week = (props: WeekType) => {
@@ -117,28 +130,31 @@ export const Week = (props: WeekType) => {
     startOfWeek,
     onDatesChange,
     isDateBlocked,
-    onDisableClicked
+    onDisableClicked,
+    styles
   } = props;
 
   const days = [];
-  const endOfWeek = startOfWeek.clone().endOf('isoweek');
+  const endOfWeek = startOfWeek.clone().endOf("week");
 
-  moment.range(startOfWeek, endOfWeek).by('days', (day: moment) => {
+  for (let day of moment.range(startOfWeek, endOfWeek).by("days")) {
     const onPress = () => {
       if (isDateBlocked(day)) {
         onDisableClicked(day);
       } else if (range) {
         let isPeriodBlocked = false;
-        const start = focusedInput === 'startDate' ? day : startDate;
-        const end = focusedInput === 'endDate' ? day : endDate;
+        const start = focusedInput === "startDate" ? day : startDate;
+        const end = focusedInput === "endDate" ? day : endDate;
         if (start && end) {
-          moment.range(start, end).by('days', (dayPeriod: moment) => {
+          moment.range(start, end).by("days", (dayPeriod: moment) => {
             if (isDateBlocked(dayPeriod)) isPeriodBlocked = true;
           });
         }
-        onDatesChange(isPeriodBlocked ?
-          dates(end, null, 'startDate') :
-          dates(start, end, focusedInput));
+        onDatesChange(
+          isPeriodBlocked
+            ? dates(end, null, "startDate")
+            : dates(start, end, focusedInput)
+        );
       } else {
         onDatesChange({ date: day });
       }
@@ -147,11 +163,17 @@ export const Week = (props: WeekType) => {
     const isDateSelected = () => {
       if (range) {
         if (startDate && endDate) {
-          return day.isSameOrAfter(startDate, 'day') && day.isSameOrBefore(endDate, 'day');
+          return (
+            day.isSameOrAfter(startDate, "day") &&
+            day.isSameOrBefore(endDate, "day")
+          );
         }
-        return (startDate && day.isSame(startDate, 'day')) || (endDate && day.isSame(endDate, 'day'));
+        return (
+          (startDate && day.isSame(startDate, "day")) ||
+          (endDate && day.isSame(endDate, "day"))
+        );
       }
-      return date && day.isSame(date, 'day');
+      return date && day.isSame(date, "day");
     };
 
     const isBlocked = isDateBlocked(day);
@@ -179,11 +201,9 @@ export const Week = (props: WeekType) => {
         <Text style={styleText}>{day.date()}</Text>
       </TouchableOpacity>
     );
-  });
+  }
 
-  return (
-    <View style={styles.week}>{days}</View>
-  );
+  return <View style={styles.week}>{days}</View>;
 };
 
 export const Month = (props: MonthType) => {
@@ -197,24 +217,33 @@ export const Month = (props: MonthType) => {
     focusedMonth,
     onDatesChange,
     isDateBlocked,
-    onDisableClicked
+    onDisableClicked,
+    styles
   } = props;
 
   const dayNames = [];
   const weeks = [];
-  const startOfMonth = focusedMonth.clone().startOf('month').startOf('isoweek');
-  const endOfMonth = focusedMonth.clone().endOf('month');
-  const weekRange = moment.range(currentDate.clone().startOf('isoweek'), currentDate.clone().endOf('isoweek'));
+  const startOfMonth = focusedMonth
+    .clone()
+    .startOf("month")
+    .startOf("week");
+  const endOfMonth = focusedMonth.clone().endOf("month");
+  const weekRange = moment.range(
+    currentDate.clone().startOf("week"),
+    currentDate.clone().endOf("week")
+  );
 
-  weekRange.by('days', (day: moment) => {
+  for (let day of weekRange.by("days")) {
     dayNames.push(
       <Text key={day.date()} style={styles.dayName}>
-        {day.format('ddd')}
+        {day.format("ddd")}
       </Text>
     );
-  });
+  }
 
-  moment.range(startOfMonth, endOfMonth).by('weeks', (week: moment) => {
+  console.log("week style:", styles);
+
+  for (let week of moment.range(startOfMonth, endOfMonth).by("weeks")) {
     weeks.push(
       <Week
         key={week}
@@ -229,15 +258,14 @@ export const Month = (props: MonthType) => {
         onDatesChange={onDatesChange}
         isDateBlocked={isDateBlocked}
         onDisableClicked={onDisableClicked}
+        styles={styles}
       />
     );
-  });
+  }
 
   return (
     <View style={styles.month}>
-      <View style={styles.week}>
-        {dayNames}
-      </View>
+      <View style={styles.week}>{dayNames}</View>
       {weeks}
     </View>
   );
@@ -246,28 +274,32 @@ export const Month = (props: MonthType) => {
 export default class Dates extends Component {
   state = {
     currentDate: moment(),
-    focusedMonth: moment().startOf('month')
-  }
+    focusedMonth: moment().startOf("month")
+  };
   props: DatesType;
 
   render() {
     const previousMonth = () => {
-      this.setState({ focusedMonth: this.state.focusedMonth.add(-1, 'M') });
+      this.setState({ focusedMonth: this.state.focusedMonth.add(-1, "M") });
     };
 
     const nextMonth = () => {
-      this.setState({ focusedMonth: this.state.focusedMonth.add(1, 'M') });
+      this.setState({ focusedMonth: this.state.focusedMonth.add(1, "M") });
     };
+
+    const styles = { ...defaultStyles, ...(this.props.styles || {}) };
 
     return (
       <View style={styles.calendar}>
         <View style={styles.heading}>
           <TouchableOpacity onPress={previousMonth}>
-            <Text>{'< Previous'}</Text>
+            <Text style={styles.controlButton}>{"<"}</Text>
           </TouchableOpacity>
-          <Text>{this.state.focusedMonth.format('MMMM')}</Text>
+          <Text style={styles.controlButton}>
+            {this.state.focusedMonth.format("MMMM YYYY")}
+          </Text>
           <TouchableOpacity onPress={nextMonth}>
-            <Text>{'Next >'}</Text>
+            <Text style={styles.controlButton}>{">"}</Text>
           </TouchableOpacity>
         </View>
         <Month
@@ -281,6 +313,7 @@ export default class Dates extends Component {
           onDatesChange={this.props.onDatesChange}
           isDateBlocked={this.props.isDateBlocked}
           onDisableClicked={this.props.onDisableClicked}
+          styles={styles}
         />
       </View>
     );
