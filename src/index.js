@@ -241,8 +241,6 @@ export const Month = (props: MonthType) => {
     );
   }
 
-  console.log("week style:", styles);
-
   for (let week of moment.range(startOfMonth, endOfMonth).by("weeks")) {
     weeks.push(
       <Week
