@@ -198,7 +198,7 @@ export const Week = (props: WeekType) => {
         onPress={onPress}
         disabled={isBlocked && !onDisableClicked}
       >
-        <Text style={styleText}>{day.date()}</Text>
+        <Text style={styleText}>{day.format('D')}</Text>
       </TouchableOpacity>
     );
   }
@@ -291,13 +291,13 @@ export default class Dates extends Component {
       <View style={styles.calendar}>
         <View style={styles.heading}>
           <TouchableOpacity onPress={previousMonth}>
-            <Text style={styles.controlButton}>{"<"}</Text>
+            <Text style={styles.controlButton}>{this.props.prev}</Text>
           </TouchableOpacity>
           <Text style={styles.controlButton}>
             {this.state.focusedMonth.format("MMMM YYYY")}
           </Text>
           <TouchableOpacity onPress={nextMonth}>
-            <Text style={styles.controlButton}>{">"}</Text>
+            <Text style={styles.controlButton}>{this.props.next}</Text>
           </TouchableOpacity>
         </View>
         <Month
